@@ -1,4 +1,5 @@
-import { insertBatch, Lyra } from "@lyrasearch/lyra";
+import { insertBatch } from "@lyrasearch/lyra";
+import { Lyra, ResolveSchema } from "@lyrasearch/lyra/dist/types";
 import glob from "glob";
 import { readFile } from "node:fs/promises";
 import { promisify } from "node:util";
@@ -13,21 +14,21 @@ import remarkRehype from "remark-rehype";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
 import rehypeDocument from "rehype-document";
-import { Properties } from 'hast';
+import { Properties } from "hast";
 
 export type MergeStrategy = "merge" | "split" | "both";
 
 export const defaultHtmlSchema = {
   type: "string",
   content: "string",
-  id: "string",
+  path: "string",
 } as const;
 
-export type DefaultSchemaElement = {
-  type: string;
-  content: string;
-  id: string;
+type Writable<T> = {
+  -readonly [K in keyof T]: T[K];
 };
+
+export type DefaultSchemaElement = ResolveSchema<Writable<typeof defaultHtmlSchema>>;
 
 type PopulateFromGlobOptions = {
   transformFn?: TransformFn;
@@ -106,7 +107,14 @@ function visitChildren(
   options?: PopulateOptions,
 ) {
   if (node.type === "text") {
-    addRecords(node.value, (parent as Element).tagName, path, (parent as Element).properties, records, options?.mergeStrategy ?? "merge");
+    addRecords(
+      node.value,
+      (parent as Element).tagName,
+      path,
+      (parent as Element).properties,
+      records,
+      options?.mergeStrategy ?? "merge",
+    );
     return;
   }
 
@@ -152,7 +160,7 @@ function addRecords(
   mergeStrategy: MergeStrategy,
 ) {
   const parentPath = path.substring(0, path.lastIndexOf("."));
-  const newRecord = { type, content, id: parentPath, properties };
+  const newRecord = { type, content, path: parentPath, properties };
   switch (mergeStrategy) {
     case "merge":
       if (!isRecordMergeable(parentPath, type, records)) {
@@ -179,7 +187,7 @@ function isRecordMergeable(path: string, tag: string, records: DefaultSchemaElem
   if (!records.length) return false;
   const lastRecord = records[records.length - 1];
   const parentPath = pathWithoutLastIndex(path);
-  const lastPath = pathWithoutLastIndex(lastRecord.id);
+  const lastPath = pathWithoutLastIndex(lastRecord.path);
   return parentPath === lastPath && tag === lastRecord.type;
 }
 
@@ -188,7 +196,11 @@ function pathWithoutLastIndex(path: string): string {
   return path.slice(0, lastBracket);
 }
 
-function addContentToLastRecord(records: (DefaultSchemaElement & { properties?: Properties})[], content: string, properties?: Properties) {
+function addContentToLastRecord(
+  records: (DefaultSchemaElement & { properties?: Properties })[],
+  content: string,
+  properties?: Properties,
+) {
   const lastRecord = records[records.length - 1];
   lastRecord.content += ` ${content}`;
   lastRecord.properties = { ...properties, ...lastRecord.properties };
