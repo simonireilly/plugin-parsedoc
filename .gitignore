@@ -329,3 +329,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/node,osx,windows,linux,intellij
+pnpm-lock.yaml
