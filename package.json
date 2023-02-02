@@ -38,7 +38,6 @@
     "test": "c8 -c test/config/c8.json tap --rcfile=test/config/tap.yml test/*.test.ts",
     "format": "prettier -w src test",
     "lint": "eslint src test --ext .js,.ts,.cts",
-    "changelog": "auto-changelog -p",
     "commit": "pnpm lint-staged && cz",
     "prepare": "husky install && npm run build"
   },
@@ -66,7 +65,6 @@
     "@types/tap": "^15.0.7",
     "@typescript-eslint/eslint-plugin": "^5.48.2",
     "@typescript-eslint/parser": "^5.48.2",
-    "auto-changelog": "^2.4.0",
     "c8": "^7.12.0",
     "commitizen": "^4.3.0",
     "eslint": "^8.32.0",
