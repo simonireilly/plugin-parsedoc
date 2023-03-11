@@ -21,6 +21,14 @@
       "import": "./dist/index.js",
       "require": "./dist/commonjs.cjs"
     },
+    "./populate": {
+      "types": "./dist/populate.d.ts",
+      "import": "./dist/populate.js"
+    },
+    "./populate-from-glob": {
+      "types": "./dist/populate-from-glob.d.ts",
+      "import": "./dist/populate-from-glob.js"
+    },
     "./cjs": {
       "types": "./dist/commonjs.d.cts",
       "require": "./dist/commonjs.cjs"
