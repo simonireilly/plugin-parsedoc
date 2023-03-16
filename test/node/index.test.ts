@@ -1,6 +1,6 @@
 import { create, search } from '@lyrasearch/lyra'
 import t from 'tap'
-import { defaultHtmlSchema as schema, populateFromGlob } from '../src/index.js'
+import { defaultHtmlSchema as schema, populateFromGlob } from '../../src/node/index.js'
 
 t.test('it should store the values', async t => {
   const db = await create({ schema })

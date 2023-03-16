@@ -1,7 +1,8 @@
 # Parsedoc Plugin
+
 [![Tests](https://github.com/LyraSearch/plugin-parsedoc/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/LyraSearch/plugin-parsedoc/actions/workflows/tests.yml)
 
-This plugin aims to generate an index for lyra from html files
+This plugin aims to generate an index for lyra from html files, markdown files, or a browser Document.
 
 # Usage
 

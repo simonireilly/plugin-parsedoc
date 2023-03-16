@@ -3,5 +3,5 @@
   "compilerOptions": {
     "module": "CommonJS"
   },
-  "include": ["src/*.cts"]
+  "include": ["src/node/*.cts"]
 }

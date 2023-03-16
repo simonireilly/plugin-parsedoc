@@ -1,25 +1,9 @@
-import { insertBatch } from '@lyrasearch/lyra'
-import { Lyra, ResolveSchema } from '@lyrasearch/lyra/dist/types'
+import { Lyra, ResolveSchema } from '@lyrasearch/lyra'
 import { Content, Element, Parent, Properties, Root } from 'hast'
 import { fromHtml } from 'hast-util-from-html'
 import { fromString } from 'hast-util-from-string'
 import { toHtml } from 'hast-util-to-html'
 import { toString } from 'hast-util-to-string'
-
-import { rehype } from 'rehype'
-import rehypeDocument from 'rehype-document'
-import rehypePresetMinify from 'rehype-preset-minify'
-import remarkParse from 'remark-parse'
-import remarkRehype from 'remark-rehype'
-import { unified } from 'unified'
-
-export type MergeStrategy = 'merge' | 'split' | 'both'
-
-export const defaultHtmlSchema = {
-  type: 'string',
-  content: 'string',
-  path: 'string'
-} as const
 
 type Writable<T> = {
   -readonly [K in keyof T]: T[K]
@@ -38,36 +22,15 @@ export type FileType = 'html' | 'md'
 
 export type LyraInstance = Lyra<typeof defaultHtmlSchema>
 
-export const populate = async (
-  db: LyraInstance,
-  data: Buffer | string,
-  fileType: FileType,
-  options?: PopulateOptions
-): Promise<void> => {
-  const records: DefaultSchemaElement[] = []
-  switch (fileType) {
-    case 'md':
-      // eslint-disable-next-line no-case-declarations
-      const tree = unified().use(remarkParse).parse(data)
-      await unified()
-        .use(remarkRehype)
-        .use(rehypeDocument)
-        .use(rehypePresetMinify)
-        .use(rehypeLyra, records, options)
-        .run(tree)
-      break
-    case 'html':
-      await rehype().use(rehypePresetMinify).use(rehypeLyra, records, options).process(data)
-      break
-    /* c8 ignore start */
-    default:
-      return fileType
-    /* c8 ignore stop */
-  }
-  return insertBatch(db, records)
-}
+export type MergeStrategy = 'merge' | 'split' | 'both'
 
-function rehypeLyra(records: DefaultSchemaElement[], options?: PopulateOptions): (tree: Root) => void {
+export const defaultHtmlSchema = {
+  type: 'string',
+  content: 'string',
+  path: 'string'
+} as const
+
+export function rehypeLyra(records: DefaultSchemaElement[], options?: PopulateOptions): (tree: Root) => void {
   return (tree: Root) => {
     tree.children.forEach((child, i) => {
       visitChildren(child, tree, `${options?.basePath /* c8 ignore next */ ?? ''}root[${i}]`, records, options)
@@ -138,6 +101,9 @@ function addRecords(
 ): void {
   const parentPath = path.substring(0, path.lastIndexOf('.'))
   const newRecord = { type, content, path: parentPath, properties }
+
+  // Shadow DOM elements are undefined
+  if (type === undefined) return
   switch (mergeStrategy) {
     case 'merge':
       if (!isRecordMergeable(parentPath, type, records)) {

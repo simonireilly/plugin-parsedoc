@@ -2,8 +2,8 @@ import { Lyra } from '@lyrasearch/lyra'
 import glob from 'glob'
 import { readFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
-import type { defaultHtmlSchema, FileType, LyraInstance, PopulateFromGlobOptions } from './populate'
-import { populate } from './populate.js'
+import type { defaultHtmlSchema, FileType, LyraInstance, PopulateFromGlobOptions } from '../core/rehype-lyra.js'
+import { populate } from '../node/populate.js'
 
 const asyncGlob = promisify(glob)
 
